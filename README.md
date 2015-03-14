@@ -2,6 +2,11 @@
 An android password view as the pay password view on wechat or alipay.
 Apache License 2.0.
 
+##ScreenShot
+
+download [demo.apk][2]
+
+![demo][1]
 
 
 ##Usage
@@ -25,3 +30,7 @@ Every password view can be defined in layout xml file:
 ##Contributing
 
 Yes:) If you found a bug, have an idea how to improve library or have a question, please create new issue or comment existing one. If you would like to contribute code fork the repository and send a pull request.
+
+
+  [1]: http://jungerr.qiniudn.com/device-2015-03-14-183835.gif
+  [2]: https://github.com/Jungerr/GridPasswordView/blob/master/demo/gridpasswordviewdemo-debug.apk
