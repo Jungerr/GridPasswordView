@@ -19,7 +19,7 @@ Apache License 2.0.
 
     dependencies {
     compile 'com.jungly:GridPasswordView:0.1'
-}
+    }
     
 
  - Add the GridPasswordView to your layout.
