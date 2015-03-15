@@ -17,10 +17,9 @@ Apache License 2.0.
  - Add the dependency to your build.gradle.
  
 
-    dependencies {
+> dependencies {
     compile 'com.jungly:GridPasswordView:0.1'
     }
-    
 
  - Add the GridPasswordView to your layout.
 
