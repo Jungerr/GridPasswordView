@@ -29,12 +29,14 @@ dependencies {
         android:id="@+id/pswView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
+        
         app:textColor="#2196F3"
         app:textSize="25sp"
         app:dividerColor="#2196F3"
+        app:dividerWidth="1dp"
         app:passwordLength="6"
         app:passwordTransformation="密"
-        app:passwordType="textPassword"/>
+        app:passwordType="numberPassword/textPassword/textVisiblePassword/textWebPassword"/>
  ```
 
 
