@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -17,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,17 +31,23 @@ import com.jungly.gridpasswordview.imebugfixer.ImeDelBugFixedEditText;
  *         mail: jungly.ik@gmail.com
  * @date 15/3/5 21:30
  */
-public class GridPasswordView extends LinearLayout {
-    private static final int DEFAULT_passwordLength = 6;
+public class GridPasswordView extends LinearLayout implements PasswordView {
+    private static final int DEFAULT_PASSWORDLENGTH = 6;
     private static final int DEFAULT_TEXTSIZE = 16;
-    private static final String DEFAULT_Transformation = "●";
+    private static final String DEFAULT_TRANSFORMATION = "●";
+    private static final int DEFAULT_LINECOLOR = 0xaa888888;
+    private static final int DEFAULT_GRIDCOLOR = 0xffffffff;
 
     private ColorStateList textColor;
     private int textSize = DEFAULT_TEXTSIZE;
-    private int dividerWidth;
-    private Drawable dividerDrawable;
-    private int passwordLength;
 
+    private int lineWidth;
+    private int lineColor;
+    private int gridColor;
+    private Drawable lineDrawable;
+    private Drawable outerLineDrawable;
+
+    private int passwordLength;
     //单字符
     private String passwordTransformation;
     private int passwordType;
@@ -68,54 +76,53 @@ public class GridPasswordView extends LinearLayout {
     }
 
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
-        TypedArray ta = context.obtainStyledAttributes(attrs, com.jungly.gridpasswordview.R.styleable.gridPasswordView, defStyleAttr, 0);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.gridPasswordView, defStyleAttr, 0);
 
-        textColor = ta.getColorStateList(com.jungly.gridpasswordview.R.styleable.gridPasswordView_textColor);
+        textColor = ta.getColorStateList(R.styleable.gridPasswordView_textColor);
         if (textColor == null)
             textColor = ColorStateList.valueOf(getResources().getColor(android.R.color.primary_text_light));
-
-        int textSize = ta.getDimensionPixelSize(com.jungly.gridpasswordview.R.styleable.gridPasswordView_textSize, 0);
-        if (textSize != 0) {
+        int textSize = ta.getDimensionPixelSize(R.styleable.gridPasswordView_textSize, -1);
+        if (textSize != -1) {
             this.textSize = Util.px2sp(context, textSize);
         }
 
-        dividerWidth = (int) ta.getDimension(com.jungly.gridpasswordview.R.styleable.gridPasswordView_dividerWidth, 1);
+        lineWidth = (int) ta.getDimension(R.styleable.gridPasswordView_lineWidth, Util.dp2px(getContext(), 1));
+        lineColor = ta.getColor(R.styleable.gridPasswordView_lineColor, DEFAULT_LINECOLOR);
+        gridColor = ta.getColor(R.styleable.gridPasswordView_gridColor, DEFAULT_GRIDCOLOR);
+        lineDrawable = ta.getDrawable(R.styleable.gridPasswordView_lineColor);
+        if (lineDrawable == null)
+            lineDrawable = new ColorDrawable(lineColor);
+        outerLineDrawable = generateBackgroundDrawable();
 
-        dividerDrawable = ta.getDrawable(com.jungly.gridpasswordview.R.styleable.gridPasswordView_dividerColor);
-        if (dividerDrawable == null)
-            dividerDrawable = new ColorDrawable(0x88888888);
-
-        passwordLength = ta.getInt(com.jungly.gridpasswordview.R.styleable.gridPasswordView_passwordLength, DEFAULT_passwordLength);
-        passwordTransformation = ta.getString(com.jungly.gridpasswordview.R.styleable.gridPasswordView_passwordTransformation);
+        passwordLength = ta.getInt(R.styleable.gridPasswordView_passwordLength, DEFAULT_PASSWORDLENGTH);
+        passwordTransformation = ta.getString(R.styleable.gridPasswordView_passwordTransformation);
         if (TextUtils.isEmpty(passwordTransformation))
-            passwordTransformation = DEFAULT_Transformation;
+            passwordTransformation = DEFAULT_TRANSFORMATION;
 
-        passwordType = ta.getInt(com.jungly.gridpasswordview.R.styleable.gridPasswordView_passwordType, 0);
+
+        passwordType = ta.getInt(R.styleable.gridPasswordView_passwordType, 0);
 
         ta.recycle();
-
-        Drawable bg = getBackground();
-        if (bg == null)
-            setBackgroundResource(com.jungly.gridpasswordview.R.drawable.gridpassword_bg_default);
-
-        setShowDividers(SHOW_DIVIDER_NONE);
-        setOrientation(HORIZONTAL);
 
         passwordArr = new String[passwordLength];
         viewArr = new TextView[passwordLength];
     }
 
     private void initViews(Context context) {
+        super.setBackgroundDrawable(outerLineDrawable);
+        setShowDividers(SHOW_DIVIDER_NONE);
+        setOrientation(HORIZONTAL);
+
         transformationMethod = new CustomPasswordTransformationMethod(passwordTransformation);
         inflaterViews(context);
     }
 
     private void inflaterViews(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        inflater.inflate(com.jungly.gridpasswordview.R.layout.gridpasswordview, this);
-        inputView = (ImeDelBugFixedEditText) findViewById(com.jungly.gridpasswordview.R.id.inputView);
+        inflater.inflate(R.layout.gridpasswordview, this);
+        inputView = (ImeDelBugFixedEditText) findViewById(R.id.inputView);
 
-        inputView.setMaxLines(passwordLength);
+        inputView.setMaxEms(passwordLength);
         inputView.addTextChangedListener(textWatcher);
         inputView.setDelKeyEventListener(onDelKeyEventListener);
         setCustomAttr(inputView);
@@ -124,14 +131,14 @@ public class GridPasswordView extends LinearLayout {
 
         int index = 1;
         while (index < passwordLength) {
-            View dividerView = inflater.inflate(com.jungly.gridpasswordview.R.layout.divider, null);
-            LayoutParams dividerParams = new LinearLayout.LayoutParams(dividerWidth, LayoutParams.MATCH_PARENT);
-            dividerView.setBackgroundDrawable(dividerDrawable);
+            View dividerView = inflater.inflate(R.layout.divider, null);
+            LayoutParams dividerParams = new LayoutParams(lineWidth, LayoutParams.MATCH_PARENT);
+            dividerView.setBackgroundDrawable(lineDrawable);
             addView(dividerView, dividerParams);
 
-            TextView textView = (TextView) inflater.inflate(com.jungly.gridpasswordview.R.layout.textview, null);
+            TextView textView = (TextView) inflater.inflate(R.layout.textview, null);
             setCustomAttr(textView);
-            LayoutParams textViewParams = new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1f);
+            LayoutParams textViewParams = new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f);
             addView(textView, textViewParams);
 
             viewArr[index] = textView;
@@ -142,7 +149,8 @@ public class GridPasswordView extends LinearLayout {
     }
 
     private void setCustomAttr(TextView view) {
-        view.setTextColor(textColor);
+        if (textColor != null)
+            view.setTextColor(textColor);
         view.setTextSize(textSize);
 
         int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
@@ -167,11 +175,18 @@ public class GridPasswordView extends LinearLayout {
     private OnClickListener onClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            forceInputViewGetFouce();
+            forceInputViewGetFocus();
         }
     };
 
-    private void forceInputViewGetFouce() {
+    private GradientDrawable generateBackgroundDrawable() {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(gridColor);
+        drawable.setStroke(lineWidth, lineColor);
+        return drawable;
+    }
+
+    private void forceInputViewGetFocus() {
         inputView.setFocusable(true);
         inputView.setFocusableInTouchMode(true);
         inputView.requestFocus();
@@ -204,11 +219,6 @@ public class GridPasswordView extends LinearLayout {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
             if (s == null) {
                 return;
             }
@@ -233,8 +243,14 @@ public class GridPasswordView extends LinearLayout {
                 inputView.addTextChangedListener(this);
             }
         }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
     };
 
+    @Deprecated
     private OnKeyListener onKeyListener = new OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -247,13 +263,15 @@ public class GridPasswordView extends LinearLayout {
     };
 
     private void notifyTextChanged() {
-        if (listener != null) {
-            String currentPsw = getPassWord();
-            listener.onChanged(currentPsw);
+        if (listener == null)
+            return;
 
-            if (currentPsw.length() == passwordLength)
-                listener.onMaxLength(currentPsw);
-        }
+        String currentPsw = getPassWord();
+        listener.onChanged(currentPsw);
+
+        if (currentPsw.length() == passwordLength)
+            listener.onMaxLength(currentPsw);
+
     }
 
     @Override
@@ -277,13 +295,16 @@ public class GridPasswordView extends LinearLayout {
         super.onRestoreInstanceState(state);
     }
 
-    public void setError(String error) {
+    //TODO
+    //@Override
+    private void setError(String error) {
         inputView.setError(error);
     }
 
     /**
      * Return the text the PasswordView is displaying.
      */
+    @Override
     public String getPassWord() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < passwordArr.length; i++) {
@@ -296,6 +317,7 @@ public class GridPasswordView extends LinearLayout {
     /**
      * Clear the passwrod the PasswordView is displaying.
      */
+    @Override
     public void clearPassword() {
         for (int i = 0; i < passwordArr.length; i++) {
             passwordArr[i] = null;
@@ -306,6 +328,7 @@ public class GridPasswordView extends LinearLayout {
     /**
      * Sets the string value of the PasswordView.
      */
+    @Override
     public void setPassword(String password) {
         clearPassword();
 
@@ -324,31 +347,82 @@ public class GridPasswordView extends LinearLayout {
     /**
      * Set the enabled state of this view.
      */
+    @Override
     public void setPasswordVisibility(boolean visible) {
-        for (TextView textView : viewArr){
+        for (TextView textView : viewArr) {
             textView.setTransformationMethod(visible ? null : transformationMethod);
-            if(textView instanceof EditText){
+            if (textView instanceof EditText) {
                 EditText et = (EditText) textView;
                 et.setSelection(et.getText().length());
             }
         }
-            
     }
 
     /**
      * Toggle the enabled state of this view.
      */
+    @Override
     public void togglePasswordVisibility() {
-        boolean currentVisible = viewArr[0].getTransformationMethod() == null;
+        boolean currentVisible = getPassWordVisibility();
         setPasswordVisibility(!currentVisible);
+    }
+
+    /**
+     * Get the visibility of this view.
+     */
+    private boolean getPassWordVisibility() {
+        return viewArr[0].getTransformationMethod() == null;
     }
 
     /**
      * Register a callback to be invoked when password changed.
      */
+    @Override
     public void setOnPasswordChangedListener(OnPasswordChangedListener listener) {
         this.listener = listener;
     }
+
+    @Override
+    public void setPasswordType(PasswordType passwordType) {
+        boolean visible = getPassWordVisibility();
+        int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
+        switch (passwordType) {
+
+            case TEXT:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                break;
+
+            case TEXTVISIBLE:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+                break;
+
+            case TEXTWEB:
+                inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
+                break;
+        }
+
+        for (TextView textView : viewArr)
+            textView.setInputType(inputType);
+
+        setPasswordVisibility(visible);
+    }
+
+    @Override
+    public void setBackground(Drawable background) {
+    }
+
+    @Override
+    public void setBackgroundColor(int color) {
+    }
+
+    @Override
+    public void setBackgroundResource(int resid) {
+    }
+
+    @Override
+    public void setBackgroundDrawable(Drawable background) {
+    }
+
 
     /**
      * Interface definition for a callback to be invoked when the password changed or is at the maximum length.

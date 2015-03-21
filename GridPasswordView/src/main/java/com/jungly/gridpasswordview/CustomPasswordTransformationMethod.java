@@ -1,6 +1,5 @@
 package com.jungly.gridpasswordview;
 
-import android.support.annotation.NonNull;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 
@@ -18,7 +17,6 @@ public class CustomPasswordTransformationMethod extends PasswordTransformationMe
         this.transformation = transformation;
     }
 
-    @NonNull
     @Override
     public CharSequence getTransformation(CharSequence source, View view) {
         return new PasswordCharSequence(source);

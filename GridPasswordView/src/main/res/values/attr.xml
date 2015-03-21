@@ -6,8 +6,9 @@
         <attr name="textColor" format="color|reference" />
         <attr name="textSize" format="dimension" />
 
-        <attr name="dividerColor" format="color|reference" />
-        <attr name="dividerWidth" format="dimension" />
+        <attr name="lineColor" format="color" />
+        <attr name="gridColor" format="color" />
+        <attr name="lineWidth" format="dimension" />
 
         <attr name="passwordLength" format="integer" />
         <attr name="passwordTransformation" format="string" />

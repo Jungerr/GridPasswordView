@@ -3,12 +3,15 @@ package com.jungly.gridpasswordview.demo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.Spinner;
 
 import com.jungly.gridpasswordview.GridPasswordView;
+import com.jungly.gridpasswordview.PasswordType;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
+import butterknife.OnItemSelected;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -25,11 +28,13 @@ public class MainActivity extends ActionBarActivity {
     GridPasswordView gpvCustomUi;
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
+    @InjectView(R.id.pswtype_sp)
+    Spinner pswtypeSp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_);
+        setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
         toolbar.setTitle(R.string.app_name);
@@ -38,6 +43,28 @@ public class MainActivity extends ActionBarActivity {
     @OnCheckedChanged(R.id.psw_visibility_switcher)
     void onCheckedChanged(boolean isChecked) {
         gpvPasswordType.togglePasswordVisibility();
+    }
+
+    @OnItemSelected(R.id.pswtype_sp)
+    void onTypeSelected(int position) {
+        switch (position) {
+            case 0:
+                gpvPasswordType.setPasswordType(PasswordType.NUMBER);
+                break;
+
+            case 1:
+                gpvPasswordType.setPasswordType(PasswordType.TEXT);
+                break;
+
+            case 2:
+                gpvPasswordType.setPasswordType(PasswordType.TEXTVISIBLE);
+                break;
+
+            case 3:
+                gpvPasswordType.setPasswordType(PasswordType.TEXTWEB);
+                break;
+        }
+
     }
 
     @Override

@@ -24,12 +24,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Normal" />
+                android:text="normal" />
 
             <com.jungly.gridpasswordview.GridPasswordView
                 android:id="@+id/gpv_normal"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp" />
 
             <TextView
@@ -49,30 +49,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="app:textColor / textSize / dividerColor" />
+                android:text="app:textColor / textSize / lineColor / lineWidth" />
 
             <com.jungly.gridpasswordview.GridPasswordView
                 android:id="@+id/gpv_customUi"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/gridpassword_bg"
-                app:textColor="@color/accent"
+                app:textColor="@color/primary"
                 app:textSize="25sp"
-                app:dividerColor="@color/primary" />
+                app:lineColor="@color/primary"
+                app:lineWidth="3dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="app:passwordTransformation=密" />
+                android:text="app:passwordTransformation=$" />
 
             <com.jungly.gridpasswordview.GridPasswordView
                 android:id="@+id/gpv_transformation"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                app:passwordTransformation="密" />
+                app:passwordTransformation="$" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -80,23 +85,33 @@
                 android:layout_marginTop="16dp">
 
                 <TextView
+                    android:id="@+id/pswtype_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="app:passwordType=textPassword"
+                    android:text="app:passwordType="
+                    android:layout_centerVertical="true" />
+
+                <Spinner
+                    android:id="@+id/pswtype_sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/pswtype_tv"
+                    android:entries="@array/passwordTypeArr"
                     android:layout_centerVertical="true" />
 
                 <Switch
                     android:id="@+id/psw_visibility_switcher"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true" />
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
             </RelativeLayout>
 
 
             <com.jungly.gridpasswordview.GridPasswordView
                 android:id="@+id/gpv_passwordType"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 app:passwordType="textPassword" />
 
