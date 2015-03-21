@@ -325,8 +325,14 @@ public class GridPasswordView extends LinearLayout {
      * Set the enabled state of this view.
      */
     public void setPasswordVisibility(boolean visible) {
-        for (TextView textView : viewArr)
+        for (TextView textView : viewArr){
             textView.setTransformationMethod(visible ? null : transformationMethod);
+            if(textView instanceof EditText){
+                EditText et = (EditText) textView;
+                et.setSelection(et.getText().length());
+            }
+        }
+            
     }
 
     /**
