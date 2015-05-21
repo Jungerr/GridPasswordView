@@ -47,7 +47,17 @@ or Maven:
         app:passwordType="numberPassword / textPassword / textVisiblePassword / textWebPassword"/>
 ```
 
+##How to use
+`getPassWord()`    get the text the PasswordView is displaying
+`clearPassword()`:  clear password in the view
+`setPassword(String password)`    just like the setText(String s) method of textview
+`togglePasswordVisibility()`  Toggle the visibility state of this view.
+`setPasswordVisibility(boolean visible)`  Set the visibility  state of this view.
+`setOnPasswordChangedListener(OnPasswordChangedListener listener)`   Register a callback to be invoked when password changed.
+`setPasswordType(PasswordType passwordType)`  one of numberPassword 、textPassword 、TEXtextVisiblePassword、textWebPassword
 
+##Other
+If you use this library in your app, please let me know : jungly.ik@gmail.com
 ##Contributing
 
 Yes:) If you found a bug, have an idea how to improve library or have a question, please create new issue or comment existing one. If you would like to contribute code fork the repository and send a pull request.
