@@ -3,6 +3,7 @@ package com.jungly.gridpasswordview.demo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.Spinner;
 
 import com.jungly.gridpasswordview.GridPasswordView;
@@ -26,10 +27,15 @@ public class MainActivity extends ActionBarActivity {
     GridPasswordView gpvPasswordType;
     @InjectView(R.id.gpv_customUi)
     GridPasswordView gpvCustomUi;
+    @InjectView(R.id.gpv_normail_twice)
+    GridPasswordView gpvNormalTwice;
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
     @InjectView(R.id.pswtype_sp)
     Spinner pswtypeSp;
+
+    boolean isFirst = true;
+    String firstPwd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +44,8 @@ public class MainActivity extends ActionBarActivity {
         ButterKnife.inject(this);
 
         toolbar.setTitle(R.string.app_name);
+
+        onPwdChangedTest();
     }
 
     @OnCheckedChanged(R.id.psw_visibility_switcher)
@@ -65,6 +73,32 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
 
+    }
+
+    // Test GridPasswordView.clearPassword() in OnPasswordChangedListener.
+    // Need enter the password twice and then check the password , like Alipay
+    void onPwdChangedTest(){
+        gpvNormalTwice.setOnPasswordChangedListener(new GridPasswordView.OnPasswordChangedListener() {
+            @Override
+            public void onChanged(String psw) {
+                if (psw.length() == 6 && isFirst){
+                    gpvNormalTwice.clearPassword();
+                    isFirst = false;
+                    firstPwd = psw;
+                }else if (psw.length() == 6 && !isFirst){
+                    if (psw.equals(firstPwd)){
+                        Log.d("MainActivity", "The password is: " + psw);
+                    }else {
+                        Log.d("MainActivity", "password doesn't match the previous one, try again!");
+                        gpvNormalTwice.clearPassword();
+                        isFirst = true;
+                    }
+                }
+            }
+
+            @Override
+            public void onMaxLength(String psw) { }
+        });
     }
 
     @Override
