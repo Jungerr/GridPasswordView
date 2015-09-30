@@ -239,7 +239,9 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
                 }
                 inputView.removeTextChangedListener(this);
                 inputView.setText(passwordArr[0]);
-                inputView.setSelection(1);
+                if (inputView.getText().length() >= 1){
+                    inputView.setSelection(1);
+                }
                 inputView.addTextChangedListener(this);
             }
         }
