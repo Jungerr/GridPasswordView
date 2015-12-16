@@ -6,7 +6,7 @@ Apache License 2.0.
 
 ##Quick Overview
 
- - Download [demo-0.2.apk][2]
+ - Download [demo-0.3.apk][2]
  - Screenshots
 
 ![demo][1]
@@ -17,15 +17,15 @@ Apache License 2.0.
  - Add the dependency to your build.gradle.
 ```
 dependencies {
-    compile 'com.jungly:GridPasswordView:0.2'
+    compile 'com.jungly:gridPasswordView:0.3'
 }
 ```
 or Maven:
 ```
 <dependency>
   <groupId>com.jungly</groupId>
-  <artifactId>GridPasswordView</artifactId>
-  <version>0.2</version>
+  <artifactId>gridPasswordView</artifactId>
+  <version>0.3</version>
   <type>aar</type>
 </dependency>
 ```
@@ -37,14 +37,14 @@ or Maven:
         android:layout_width="match_parent"
         android:layout_height="match_parent" 
         
-        app:textColor="#2196F3"
-        app:textSize="25sp"
-        app:lineColor="#2196F3"
-        app:lineWidth="1dp"
-        app:gridColor="#ffffff"
-        app:passwordLength="6"
-        app:passwordTransformation="$"
-        app:passwordType="numberPassword / textPassword / textVisiblePassword / textWebPassword"/>
+        app:gpvTextColor="#2196F3"
+        app:gpvTextSize="25sp"
+        app:gpvLineColor="#2196F3"
+        app:gpvLineWidth="1dp"
+        app:gpvGridColor="#ffffff"
+        app:gpvPasswordLength="6"
+        app:gpvPasswordTransformation="$"
+        app:gpvPasswordType="numberPassword / textPassword / textVisiblePassword / textWebPassword"/>
 ```
 
 ##How to use
@@ -80,4 +80,4 @@ License
     limitations under the License.
 
   [1]: http://jungerr.qiniudn.com/gridpasswordview_0.2.gif
-  [2]: https://github.com/Jungerr/GridPasswordView/blob/master/demo/demo-0.2.apk
+  [2]: https://github.com/Jungerr/GridPasswordView/blob/master/demo/demo-0.3.apk

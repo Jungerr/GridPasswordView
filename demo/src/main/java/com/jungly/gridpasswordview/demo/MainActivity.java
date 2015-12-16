@@ -42,7 +42,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
-
+        setSupportActionBar(toolbar);
         toolbar.setTitle(R.string.app_name);
 
         onPwdChangedTest();
@@ -80,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
     void onPwdChangedTest(){
         gpvNormalTwice.setOnPasswordChangedListener(new GridPasswordView.OnPasswordChangedListener() {
             @Override
-            public void onChanged(String psw) {
+            public void onTextChanged(String psw) {
                 if (psw.length() == 6 && isFirst){
                     gpvNormalTwice.clearPassword();
                     isFirst = false;
@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onMaxLength(String psw) { }
+            public void onInputFinish(String psw) { }
         });
     }
 

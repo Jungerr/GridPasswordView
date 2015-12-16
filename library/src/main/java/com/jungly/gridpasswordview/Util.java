@@ -5,8 +5,8 @@ import android.util.DisplayMetrics;
 
 /**
  * @author Jungly
- * @mail jungly.ik@gmail.com
- * @date 15/3/8 10:07
+ * jungly.ik@gmail.com
+ * 15/3/8 10:07
  */
 public class Util {
 

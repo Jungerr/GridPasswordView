@@ -1,11 +1,13 @@
 package com.jungly.gridpasswordview;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
@@ -28,8 +30,8 @@ import com.jungly.gridpasswordview.imebugfixer.ImeDelBugFixedEditText;
  * ●
  *
  * @author Jungly
- *         mail: jungly.ik@gmail.com
- * @date 15/3/5 21:30
+ * jungly.ik@gmail.com
+ * 15/3/5 21:30
  */
 public class GridPasswordView extends LinearLayout implements PasswordView {
     private static final int DEFAULT_PASSWORDLENGTH = 6;
@@ -38,39 +40,47 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     private static final int DEFAULT_LINECOLOR = 0xaa888888;
     private static final int DEFAULT_GRIDCOLOR = 0xffffffff;
 
-    private ColorStateList textColor;
-    private int textSize = DEFAULT_TEXTSIZE;
+    private ColorStateList mTextColor;
+    private int mTextSize = DEFAULT_TEXTSIZE;
+    private int mLineWidth;
+    private int mLineColor;
+    private int mGridColor;
+    private Drawable mLineDrawable;
+    private Drawable mOuterLineDrawable;
+    private int mPasswordLength;
+    private String mPasswordTransformation;
+    private int mPasswordType;
 
-    private int lineWidth;
-    private int lineColor;
-    private int gridColor;
-    private Drawable lineDrawable;
-    private Drawable outerLineDrawable;
+    private String[] mPasswordArr;
+    private TextView[] mViewArr;
 
-    private int passwordLength;
-    //单字符
-    private String passwordTransformation;
-    private int passwordType;
-
-    private ImeDelBugFixedEditText inputView;
-
-    private String[] passwordArr;
-    private TextView[] viewArr;
-
-    private OnPasswordChangedListener listener;
-
-    private PasswordTransformationMethod transformationMethod;
+    private ImeDelBugFixedEditText mInputView;
+    private OnPasswordChangedListener mListener;
+    private PasswordTransformationMethod mTransformationMethod;
 
     public GridPasswordView(Context context) {
-        this(context, null);
+        super(context);
+        initViews(context);
+        init(context, null, 0);
     }
 
     public GridPasswordView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init(context, attrs, 0);
     }
 
     public GridPasswordView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public GridPasswordView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs, defStyleAttr);
+    }
+
+    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         initAttrs(context, attrs, defStyleAttr);
         initViews(context);
     }
@@ -78,62 +88,62 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.gridPasswordView, defStyleAttr, 0);
 
-        textColor = ta.getColorStateList(R.styleable.gridPasswordView_textColor);
-        if (textColor == null)
-            textColor = ColorStateList.valueOf(getResources().getColor(android.R.color.primary_text_light));
-        int textSize = ta.getDimensionPixelSize(R.styleable.gridPasswordView_textSize, -1);
+        mTextColor = ta.getColorStateList(R.styleable.gridPasswordView_gpvTextColor);
+        if (mTextColor == null)
+            mTextColor = ColorStateList.valueOf(getResources().getColor(android.R.color.primary_text_light));
+        int textSize = ta.getDimensionPixelSize(R.styleable.gridPasswordView_gpvTextSize, -1);
         if (textSize != -1) {
-            this.textSize = Util.px2sp(context, textSize);
+            this.mTextSize = Util.px2sp(context, textSize);
         }
 
-        lineWidth = (int) ta.getDimension(R.styleable.gridPasswordView_lineWidth, Util.dp2px(getContext(), 1));
-        lineColor = ta.getColor(R.styleable.gridPasswordView_lineColor, DEFAULT_LINECOLOR);
-        gridColor = ta.getColor(R.styleable.gridPasswordView_gridColor, DEFAULT_GRIDCOLOR);
-        lineDrawable = ta.getDrawable(R.styleable.gridPasswordView_lineColor);
-        if (lineDrawable == null)
-            lineDrawable = new ColorDrawable(lineColor);
-        outerLineDrawable = generateBackgroundDrawable();
+        mLineWidth = (int) ta.getDimension(R.styleable.gridPasswordView_gpvLineWidth, Util.dp2px(getContext(), 1));
+        mLineColor = ta.getColor(R.styleable.gridPasswordView_gpvLineColor, DEFAULT_LINECOLOR);
+        mGridColor = ta.getColor(R.styleable.gridPasswordView_gpvGridColor, DEFAULT_GRIDCOLOR);
+        mLineDrawable = ta.getDrawable(R.styleable.gridPasswordView_gpvLineColor);
+        if (mLineDrawable == null)
+            mLineDrawable = new ColorDrawable(mLineColor);
+        mOuterLineDrawable = generateBackgroundDrawable();
 
-        passwordLength = ta.getInt(R.styleable.gridPasswordView_passwordLength, DEFAULT_PASSWORDLENGTH);
-        passwordTransformation = ta.getString(R.styleable.gridPasswordView_passwordTransformation);
-        if (TextUtils.isEmpty(passwordTransformation))
-            passwordTransformation = DEFAULT_TRANSFORMATION;
+        mPasswordLength = ta.getInt(R.styleable.gridPasswordView_gpvPasswordLength, DEFAULT_PASSWORDLENGTH);
+        mPasswordTransformation = ta.getString(R.styleable.gridPasswordView_gpvPasswordTransformation);
+        if (TextUtils.isEmpty(mPasswordTransformation))
+            mPasswordTransformation = DEFAULT_TRANSFORMATION;
 
 
-        passwordType = ta.getInt(R.styleable.gridPasswordView_passwordType, 0);
+        mPasswordType = ta.getInt(R.styleable.gridPasswordView_gpvPasswordType, 0);
 
         ta.recycle();
 
-        passwordArr = new String[passwordLength];
-        viewArr = new TextView[passwordLength];
+        mPasswordArr = new String[mPasswordLength];
+        mViewArr = new TextView[mPasswordLength];
     }
 
     private void initViews(Context context) {
-        super.setBackgroundDrawable(outerLineDrawable);
+        super.setBackgroundDrawable(mOuterLineDrawable);
         setShowDividers(SHOW_DIVIDER_NONE);
         setOrientation(HORIZONTAL);
 
-        transformationMethod = new CustomPasswordTransformationMethod(passwordTransformation);
+        mTransformationMethod = new CustomPasswordTransformationMethod(mPasswordTransformation);
         inflaterViews(context);
     }
 
     private void inflaterViews(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.gridpasswordview, this);
-        inputView = (ImeDelBugFixedEditText) findViewById(R.id.inputView);
 
-        inputView.setMaxEms(passwordLength);
-        inputView.addTextChangedListener(textWatcher);
-        inputView.setDelKeyEventListener(onDelKeyEventListener);
-        setCustomAttr(inputView);
+        mInputView = (ImeDelBugFixedEditText) findViewById(R.id.inputView);
+        mInputView.setMaxEms(mPasswordLength);
+        mInputView.addTextChangedListener(textWatcher);
+        mInputView.setDelKeyEventListener(onDelKeyEventListener);
+        setCustomAttr(mInputView);
 
-        viewArr[0] = inputView;
+        mViewArr[0] = mInputView;
 
         int index = 1;
-        while (index < passwordLength) {
+        while (index < mPasswordLength) {
             View dividerView = inflater.inflate(R.layout.divider, null);
-            LayoutParams dividerParams = new LayoutParams(lineWidth, LayoutParams.MATCH_PARENT);
-            dividerView.setBackgroundDrawable(lineDrawable);
+            LayoutParams dividerParams = new LayoutParams(mLineWidth, LayoutParams.MATCH_PARENT);
+            dividerView.setBackgroundDrawable(mLineDrawable);
             addView(dividerView, dividerParams);
 
             TextView textView = (TextView) inflater.inflate(R.layout.textview, null);
@@ -141,20 +151,20 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
             LayoutParams textViewParams = new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f);
             addView(textView, textViewParams);
 
-            viewArr[index] = textView;
+            mViewArr[index] = textView;
             index++;
         }
 
-        setOnClickListener(onClickListener);
+        setOnClickListener(mOnClickListener);
     }
 
     private void setCustomAttr(TextView view) {
-        if (textColor != null)
-            view.setTextColor(textColor);
-        view.setTextSize(textSize);
+        if (mTextColor != null)
+            view.setTextColor(mTextColor);
+        view.setTextSize(mTextSize);
 
         int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
-        switch (passwordType) {
+        switch (mPasswordType) {
 
             case 1:
                 inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
@@ -169,10 +179,10 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
                 break;
         }
         view.setInputType(inputType);
-        view.setTransformationMethod(transformationMethod);
+        view.setTransformationMethod(mTransformationMethod);
     }
 
-    private OnClickListener onClickListener = new OnClickListener() {
+    private OnClickListener mOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             forceInputViewGetFocus();
@@ -181,31 +191,31 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
 
     private GradientDrawable generateBackgroundDrawable() {
         GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(gridColor);
-        drawable.setStroke(lineWidth, lineColor);
+        drawable.setColor(mGridColor);
+        drawable.setStroke(mLineWidth, mLineColor);
         return drawable;
     }
 
     private void forceInputViewGetFocus() {
-        inputView.setFocusable(true);
-        inputView.setFocusableInTouchMode(true);
-        inputView.requestFocus();
+        mInputView.setFocusable(true);
+        mInputView.setFocusableInTouchMode(true);
+        mInputView.requestFocus();
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(inputView, InputMethodManager.SHOW_IMPLICIT);
+        imm.showSoftInput(mInputView, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private ImeDelBugFixedEditText.OnDelKeyEventListener onDelKeyEventListener = new ImeDelBugFixedEditText.OnDelKeyEventListener() {
 
         @Override
         public void onDeleteClick() {
-            for (int i = passwordArr.length - 1; i >= 0; i--) {
-                if (passwordArr[i] != null) {
-                    passwordArr[i] = null;
-                    viewArr[i].setText(null);
+            for (int i = mPasswordArr.length - 1; i >= 0; i--) {
+                if (mPasswordArr[i] != null) {
+                    mPasswordArr[i] = null;
+                    mViewArr[i].setText(null);
                     notifyTextChanged();
                     break;
                 } else {
-                    viewArr[i].setText(null);
+                    mViewArr[i].setText(null);
                 }
             }
         }
@@ -225,24 +235,24 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
 
             String newStr = s.toString();
             if (newStr.length() == 1) {
-                passwordArr[0] = newStr;
+                mPasswordArr[0] = newStr;
                 notifyTextChanged();
             } else if (newStr.length() == 2) {
                 String newNum = newStr.substring(1);
-                for (int i = 0; i < passwordArr.length; i++) {
-                    if (passwordArr[i] == null) {
-                        passwordArr[i] = newNum;
-                        viewArr[i].setText(newNum);
+                for (int i = 0; i < mPasswordArr.length; i++) {
+                    if (mPasswordArr[i] == null) {
+                        mPasswordArr[i] = newNum;
+                        mViewArr[i].setText(newNum);
                         notifyTextChanged();
                         break;
                     }
                 }
-                inputView.removeTextChangedListener(this);
-                inputView.setText(passwordArr[0]);
-                if (inputView.getText().length() >= 1){
-                    inputView.setSelection(1);
+                mInputView.removeTextChangedListener(this);
+                mInputView.setText(mPasswordArr[0]);
+                if (mInputView.getText().length() >= 1) {
+                    mInputView.setSelection(1);
                 }
-                inputView.addTextChangedListener(this);
+                mInputView.addTextChangedListener(this);
             }
         }
 
@@ -265,22 +275,21 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     };
 
     private void notifyTextChanged() {
-        if (listener == null)
+        if (mListener == null)
             return;
 
         String currentPsw = getPassWord();
-        listener.onChanged(currentPsw);
+        mListener.onTextChanged(currentPsw);
 
-        if (currentPsw.length() == passwordLength)
-            listener.onMaxLength(currentPsw);
-
+        if (currentPsw.length() == mPasswordLength)
+            mListener.onInputFinish(currentPsw);
     }
 
     @Override
     protected Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
         bundle.putParcelable("instanceState", super.onSaveInstanceState());
-        bundle.putStringArray("passwordArr", passwordArr);
+        bundle.putStringArray("passwordArr", mPasswordArr);
         return bundle;
     }
 
@@ -288,11 +297,11 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     protected void onRestoreInstanceState(Parcelable state) {
         if (state instanceof Bundle) {
             Bundle bundle = (Bundle) state;
-            passwordArr = bundle.getStringArray("passwordArr");
+            mPasswordArr = bundle.getStringArray("passwordArr");
             state = bundle.getParcelable("instanceState");
-            inputView.removeTextChangedListener(textWatcher);
+            mInputView.removeTextChangedListener(textWatcher);
             setPassword(getPassWord());
-            inputView.addTextChangedListener(textWatcher);
+            mInputView.addTextChangedListener(textWatcher);
         }
         super.onRestoreInstanceState(state);
     }
@@ -300,7 +309,7 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     //TODO
     //@Override
     private void setError(String error) {
-        inputView.setError(error);
+        mInputView.setError(error);
     }
 
     /**
@@ -309,9 +318,9 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     @Override
     public String getPassWord() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < passwordArr.length; i++) {
-            if (passwordArr[i] != null)
-                sb.append(passwordArr[i]);
+        for (int i = 0; i < mPasswordArr.length; i++) {
+            if (mPasswordArr[i] != null)
+                sb.append(mPasswordArr[i]);
         }
         return sb.toString();
     }
@@ -321,9 +330,9 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
      */
     @Override
     public void clearPassword() {
-        for (int i = 0; i < passwordArr.length; i++) {
-            passwordArr[i] = null;
-            viewArr[i].setText(null);
+        for (int i = 0; i < mPasswordArr.length; i++) {
+            mPasswordArr[i] = null;
+            mViewArr[i].setText(null);
         }
     }
 
@@ -339,9 +348,9 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
 
         char[] pswArr = password.toCharArray();
         for (int i = 0; i < pswArr.length; i++) {
-            if (i < passwordArr.length) {
-                passwordArr[i] = pswArr[i] + "";
-                viewArr[i].setText(passwordArr[i]);
+            if (i < mPasswordArr.length) {
+                mPasswordArr[i] = pswArr[i] + "";
+                mViewArr[i].setText(mPasswordArr[i]);
             }
         }
     }
@@ -351,8 +360,8 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
      */
     @Override
     public void setPasswordVisibility(boolean visible) {
-        for (TextView textView : viewArr) {
-            textView.setTransformationMethod(visible ? null : transformationMethod);
+        for (TextView textView : mViewArr) {
+            textView.setTransformationMethod(visible ? null : mTransformationMethod);
             if (textView instanceof EditText) {
                 EditText et = (EditText) textView;
                 et.setSelection(et.getText().length());
@@ -373,7 +382,7 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
      * Get the visibility of this view.
      */
     private boolean getPassWordVisibility() {
-        return viewArr[0].getTransformationMethod() == null;
+        return mViewArr[0].getTransformationMethod() == null;
     }
 
     /**
@@ -381,7 +390,7 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
      */
     @Override
     public void setOnPasswordChangedListener(OnPasswordChangedListener listener) {
-        this.listener = listener;
+        this.mListener = listener;
     }
 
     @Override
@@ -403,7 +412,7 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
                 break;
         }
 
-        for (TextView textView : viewArr)
+        for (TextView textView : mViewArr)
             textView.setInputType(inputType);
 
         setPasswordVisibility(visible);
@@ -433,13 +442,15 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
 
         /**
          * Invoked when the password changed.
+         * @param psw new text
          */
-        public void onChanged(String psw);
+        void onTextChanged(String psw);
 
         /**
          * Invoked when the password is at the maximum length.
+         * @param psw complete text
          */
-        public void onMaxLength(String psw);
+        void onInputFinish(String psw);
 
     }
 }

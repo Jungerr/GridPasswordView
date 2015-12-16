@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
-                app:passwordLength="8" />
+                app:gpvPasswordLength="8" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -57,10 +57,10 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/gridpassword_bg"
-                app:lineColor="@color/primary"
-                app:lineWidth="3dp"
-                app:textColor="@color/primary"
-                app:textSize="25sp" />
+                app:gpvLineColor="@color/primary"
+                app:gpvLineWidth="3dp"
+                app:gpvTextColor="@color/primary"
+                app:gpvTextSize="25sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                app:passwordTransformation="$" />
+                app:gpvPasswordTransformation="$" />
 
             <ListView
                 android:layout_width="match_parent"
@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
-                app:passwordType="textPassword" />
+                app:gpvPasswordType="textPassword" />
 
             <TextView
                 android:layout_width="wrap_content"
