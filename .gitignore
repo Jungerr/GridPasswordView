@@ -1,3 +1,11 @@
-/build
-/.DS_Store
-/README.md
+.gradle/
+/local.properties
+.idea/
+.DS_Store
+build/
+captures/
+
+*.class
+*.iml
+*.pyc
+gradle/local.properties
