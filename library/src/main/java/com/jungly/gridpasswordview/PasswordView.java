@@ -21,5 +21,5 @@ interface PasswordView {
 
     void setOnPasswordChangedListener(GridPasswordView.OnPasswordChangedListener listener);
 
-    void setPasswordType(PasswordType passwordType);
+    void setPasswordType(@GridPasswordView.PasswordType int passwordType);
 }
