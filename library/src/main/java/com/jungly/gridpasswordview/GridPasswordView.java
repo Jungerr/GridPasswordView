@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.IntDef;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -25,6 +26,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jungly.gridpasswordview.imebugfixer.ImeDelBugFixedEditText;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * ●
@@ -57,6 +61,15 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     private ImeDelBugFixedEditText mInputView;
     private OnPasswordChangedListener mListener;
     private PasswordTransformationMethod mTransformationMethod;
+
+    public static final int PWD_TYPE_NUMBER = 0;
+    public static final int PWD_TYPE_TEXT = 1;
+    public static final int PWD_TYPE_TEXTVISIBLE = 2;
+    public static final int PWD_TYPE_TEXTWEB = 3;
+
+    @IntDef({PWD_TYPE_NUMBER, PWD_TYPE_TEXT, PWD_TYPE_TEXTVISIBLE, PWD_TYPE_TEXTWEB})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PasswordType{}
 
     public GridPasswordView(Context context) {
         super(context);
@@ -394,20 +407,20 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
     }
 
     @Override
-    public void setPasswordType(PasswordType passwordType) {
+    public void setPasswordType(@PasswordType int passwordType) {
         boolean visible = getPassWordVisibility();
         int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
         switch (passwordType) {
 
-            case TEXT:
+            case PWD_TYPE_TEXT:
                 inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
                 break;
 
-            case TEXTVISIBLE:
+            case PWD_TYPE_TEXTVISIBLE:
                 inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
                 break;
 
-            case TEXTWEB:
+            case PWD_TYPE_TEXTWEB:
                 inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD;
                 break;
         }
