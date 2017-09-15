@@ -248,7 +248,6 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
                     }
                 }
                 mInputView.removeTextChangedListener(this);
-                mInputView.setText(mPasswordArr[0]);
                 if (mInputView.getText().length() >= 1) {
                     mInputView.setSelection(1);
                 }
@@ -258,7 +257,9 @@ public class GridPasswordView extends LinearLayout implements PasswordView {
 
         @Override
         public void afterTextChanged(Editable s) {
-
+            if (s.length > 1) {
+                s.delete(1,s.length());
+            }
         }
     };
 
